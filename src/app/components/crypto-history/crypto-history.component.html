@@ -12,9 +12,9 @@
   <p-chart type="line" [data]="chartData" [options]="chartOptions" class="chart"></p-chart>
 
   <div class="date-range-buttons">
-    <button (click)="setDateRange(1)" [ngStyle]="{background:days==1?'#ffffff':''}">1D</button>
-    <button (click)="setDateRange(7)" [ngStyle]="{background:days==7?'#ffffff':''}">7D</button>
-    <button (click)="setDateRange(30)" [ngStyle]="{background:days==30?'#ffffff':''}">1M</button>
-    <button (click)="setDateRange(365)" [ngStyle]="{background:days==365?'#ffffff':''}">1Y</button>
+    <button (click)="setDateRange(1)" [ngClass]="getClass(1)">1D</button>
+    <button (click)="setDateRange(7)" [ngClass]="getClass(7)">7D</button>
+    <button (click)="setDateRange(30)" [ngClass]="getClass(30)">1M</button>
+    <button (click)="setDateRange(365)" [ngClass]="getClass(365)">1Y</button>
   </div>
 </div>

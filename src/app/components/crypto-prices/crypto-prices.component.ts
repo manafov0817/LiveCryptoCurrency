@@ -11,7 +11,7 @@ import { IPrice } from '../../models/IPrice.model';
   standalone: true,
   imports: [TableModule, DropdownModule, FormsModule],
   templateUrl: './crypto-prices.component.html',
-  styleUrl: './crypto-prices.component.css',
+  styleUrl: './crypto-prices.component.scss',
 })
 export class CryptoPricesComponent implements OnInit, OnDestroy {
   private subscription!: Subscription;
@@ -44,23 +44,26 @@ export class CryptoPricesComponent implements OnInit, OnDestroy {
       this.subscription = this.cryptoSvc
         .getPriceUpdates(this.selectedCurrency, this.start, this.end)
         .subscribe((message) => {
-          if (message.type == 'ticker') {
+          if (message.type === 'ticker') {
             const priceUpdate: IPrice = {
               product_id: message.product_id,
               price: Number(message.price),
             };
-            const index = this.prices.findIndex(
-              (p) => p.product_id == priceUpdate.product_id
-            );
-            if (index >= 0) this.prices[index].price = priceUpdate.price;
-            else {
-              this.prices.push(priceUpdate);
-              this.totalRecords = this.prices.length;
-            }
+            this.prices = this.prices
+              .map((p) =>
+                p.product_id === priceUpdate.product_id
+                  ? { ...p, price: priceUpdate.price }
+                  : p
+              )
+              .concat(
+                this.prices.some((p) => p.product_id === priceUpdate.product_id)
+                  ? []
+                  : [priceUpdate]
+              );
+            this.totalRecords = this.prices.length;
           }
         });
     }, 0);
-    console.log(this.prices);
   }
 
   loadData(event: TableLazyLoadEvent) {

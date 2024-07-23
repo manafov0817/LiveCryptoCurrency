@@ -7,7 +7,7 @@ import { CryptoHistoryComponent } from './components/crypto-history/crypto-histo
   standalone: true,
   imports: [RouterOutlet, CryptoPricesComponent, CryptoHistoryComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'crypto-tracker';

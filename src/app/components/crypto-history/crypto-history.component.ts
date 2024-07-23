@@ -18,9 +18,10 @@ import 'chartjs-adapter-date-fns';
     CommonModule,
   ],
   templateUrl: './crypto-history.component.html',
-  styleUrl: './crypto-history.component.css',
+  styleUrl: './crypto-history.component.scss',
 })
 export class CryptoHistoryComponent implements OnInit {
+ 
   selectedCurrency: string = 'usd';
   selectedCoin: string = 'bitcoin';
   days: number = 7;
@@ -107,6 +108,9 @@ export class CryptoHistoryComponent implements OnInit {
   setDateRange(days: number): void {
     this.days = days;
     this.fetchHistoricalData();
+  }
+  getClass(day: number): any {
+    return day == this.days ? 'active-button' : '';
   }
   initializeChartOptions(): void {
     this.chartOptions = {
