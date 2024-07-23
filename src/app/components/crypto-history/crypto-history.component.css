@@ -1,0 +1,38 @@
+.flex {
+  display: flex;
+  justify-content: space-around;
+}
+.filter-box {
+  margin-bottom: 30px;
+}
+
+.range-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.date-range-buttons {
+  margin-left: auto;
+  background: #eff2f5;
+  width: max-content;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.date-range-buttons button {
+  margin: 0px 1px;
+  padding: 2.5px 5px;
+  border: none;
+  color: #6a778b;
+  cursor: pointer;
+  border-radius: 4px;
+  background: none;
+  font-family: inherit;
+}
+.activeButton {
+  background: #ffffff;
+}
+
+.date-range-buttons button:hover {
+  background: #ffffff;
+}

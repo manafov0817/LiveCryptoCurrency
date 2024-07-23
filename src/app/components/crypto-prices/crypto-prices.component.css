@@ -1,0 +1,10 @@
+.container {
+  max-width: 1170px;
+  margin: auto;
+}
+.currencySelector{
+    margin: 20px 0;
+}
+.pTable{
+  margin-bottom: 50px;
+}

@@ -1,1 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+.container {
+  max-width: 1170px;
+  margin: auto;
+}
+.currencySelector {
+  margin: 20px 0;
+}
+.dropdown{
+    margin-right:20px;
+}
