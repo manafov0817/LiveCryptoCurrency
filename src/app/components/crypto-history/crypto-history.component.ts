@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CryptoHistoryService } from '../../services/crypto-history.service';
-import { DropdownModule } from 'primeng/dropdown';
+import { Component } from '@angular/core';
+import { CryptoHistoryService } from '../../services/crypto-history/crypto-history.service';
+import { DropdownChangeEvent, DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CommonModule } from '@angular/common';
 import 'chartjs-adapter-date-fns';
+import { catchError, map, Observable, of } from 'rxjs';
+import { ChartSettings } from '../../models/ChartSettings.model';
 
 @Component({
   selector: 'app-crypto-history',
@@ -20,13 +22,83 @@ import 'chartjs-adapter-date-fns';
   templateUrl: './crypto-history.component.html',
   styleUrl: './crypto-history.component.scss',
 })
-export class CryptoHistoryComponent implements OnInit {
- 
-  selectedCurrency: string = 'usd';
-  selectedCoin: string = 'bitcoin';
-  days: number = 7;
-  chartData: any;
-  chartOptions: any;
+export class CryptoHistoryComponent {
+  chartSettings: ChartSettings = new ChartSettings('usd', 'bitcoin', 7);
+
+  chartData$: Observable<any> = this.cryptoHistorySvc.cryptoHistoryData$.pipe(
+    map((data) => ({
+      labels: data.prices.map((price: any) => new Date(price[0])),
+      datasets: [
+        {
+          label: `${this.chartSettings.selectedCoin} price in ${this.chartSettings.selectedCurrency}`,
+          data: data.prices.map((price: any) => price[1]),
+          fill: false,
+          borderColor: '#4bc0c0',
+        },
+      ],
+    })),
+    catchError(() => {
+      alert('Please, try again later');
+      return [];
+    })
+  );
+
+  constructor(private cryptoHistorySvc: CryptoHistoryService) {
+    cryptoHistorySvc.settingsChanged(this.chartSettings);
+  }
+
+  setDateRange(days: number): void {
+    this.chartSettings.days = days;
+    this.cryptoHistorySvc.settingsChanged(this.chartSettings);
+  }
+
+  dropdownChanged(event: DropdownChangeEvent, type: string): void {
+    switch (type) {
+      case 'curr':
+        this.chartSettings.selectedCurrency = event.value;
+        break;
+      case 'coin':
+        this.chartSettings.selectedCoin = event.value;
+        break;
+      default:
+        console.error('Wrong type!');
+    }
+    this.cryptoHistorySvc.settingsChanged(this.chartSettings);
+  }
+
+  focusOut(event: any): void {
+    this.setDateRange(event.target?.value);
+  }
+
+  getClass(day: number): any {
+    return day == this.chartSettings.days ? 'active-button' : '';
+  }
+
+  chartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 4,
+
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          unit: 'day',
+        },
+        title: {
+          display: true,
+          text: 'Date',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: `Price `,
+        },
+      },
+    },
+  };
+
   coins = [
     { label: 'Bitcoin', value: 'bitcoin' },
     { label: 'Ethereum', value: 'ethereum' },
@@ -75,73 +147,4 @@ export class CryptoHistoryComponent implements OnInit {
     { label: 'BRL', value: 'brl' },
     { label: 'TWD', value: 'twd' },
   ];
-
-  constructor(private cryptoHistorySvc: CryptoHistoryService) {}
-
-  ngOnInit(): void {
-    this.fetchHistoricalData();
-    this.initializeChartOptions();
-  }
-
-  fetchHistoricalData(): void {
-    this.cryptoHistorySvc
-      .getCryptoData(this.selectedCoin, this.selectedCurrency, this.days)
-      .subscribe({
-        next: (data) => {
-          this.chartData = {
-            labels: data.prices.map((price: any) => new Date(price[0])),
-            datasets: [
-              {
-                label: `${this.selectedCoin} price in ${this.selectedCurrency}`,
-                data: data.prices.map((price: any) => price[1]),
-                fill: false,
-                borderColor: '#4bc0c0',
-              },
-            ],
-          };
-        },
-        error: (err) => {
-          alert('Please, try again later');
-        },
-      });
-  }
-  setDateRange(days: number): void {
-    this.days = days;
-    this.fetchHistoricalData();
-  }
-  getClass(day: number): any {
-    return day == this.days ? 'active-button' : '';
-  }
-  initializeChartOptions(): void {
-    this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 4, // You can adjust this value based on your needs
-
-      scales: {
-        x: {
-          type: 'time',
-          time: {
-            unit: 'day',
-          },
-          title: {
-            display: true,
-            text: 'Date',
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: `Price (${this.selectedCurrency})`,
-          },
-        },
-      },
-    };
-  }
-
-  focusOut(event: any): void {
-    setTimeout(() => {
-      this.fetchHistoricalData();
-    }, 500);
-  }
 }

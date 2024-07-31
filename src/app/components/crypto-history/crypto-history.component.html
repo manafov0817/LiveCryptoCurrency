@@ -1,16 +1,15 @@
 <div class="container">
   <div class="filter-box">
-    <p-dropdown [options]="currencies" [(ngModel)]="selectedCurrency" (onChange)="focusOut($event)" class="dropdown">
+    <p-dropdown [options]="currencies" (onChange)="dropdownChanged($event, 'curr')" class="dropdown">
     </p-dropdown>
-
-    <p-dropdown [options]="coins" [(ngModel)]="selectedCoin" (onChange)="focusOut($event)" class="dropdown">
+    <p-dropdown [options]="coins" (onChange)="dropdownChanged($event, 'coin')" class="dropdown">
     </p-dropdown>
-
-    <p-inputNumber type="number" [(ngModel)]="days" (focusout)="focusOut($event)"
-      placeholder="Number of Days"></p-inputNumber>
+    <p-inputNumber type="number" (focusout)="focusOut($event)" placeholder="Number of Days"></p-inputNumber>
   </div>
-  <p-chart type="line" [data]="chartData" [options]="chartOptions" class="chart"></p-chart>
+  <div *ngIf="chartData$ | async as data">
 
+    <p-chart type="line" [data]="data" [options]="chartOptions" class="chart"></p-chart>
+  </div>
   <div class="date-range-buttons">
     <button (click)="setDateRange(1)" [ngClass]="getClass(1)">1D</button>
     <button (click)="setDateRange(7)" [ngClass]="getClass(7)">7D</button>

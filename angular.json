@@ -5,7 +5,11 @@
   "projects": {
     "crypto-tracker": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -88,7 +92,6 @@
               }
             ],
             "styles": [
-              
               "node_modules/primeng/resources/themes/md-light-deeppurple/theme.scss",
               "node_modules/primeng/resources/primeng.min.scss",
               "node_modules/primeicons/primeicons.scss",

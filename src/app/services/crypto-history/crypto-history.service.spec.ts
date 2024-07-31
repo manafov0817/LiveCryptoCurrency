@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { CryptoHistoryService } from './crypto-history.service';
 
-import { CryptoHistoryService } from '../services/crypto-history.service';
-
+ 
 describe('CryptoHistoryService', () => {
   let service: CryptoHistoryService;
 
