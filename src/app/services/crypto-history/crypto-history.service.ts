@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, switchMap } from 'rxjs';
 import { ChartSettings } from '../../models/ChartSettings.model';
 
 @Injectable({
@@ -16,13 +16,11 @@ export class CryptoHistoryService {
   cryptoHistory$ = this.cryptoHistorySubject.asObservable();
 
   cryptoHistoryData$ = this.cryptoHistory$.pipe(
-    tap((sett) => console.log(sett)),
-    switchMap((settings) => {
+     switchMap((settings) => {
       const url = `${this.baseUrl}/${settings?.selectedCoin}/market_chart?vs_currency=${settings?.selectedCurrency}&days=${settings?.days}`;
       return this.http.get<any>(url);
     }),
-    tap((dat) => console.log(dat))
-  );
+   );
 
   settingsChanged(settings: ChartSettings): void {
     this.cryptoHistorySubject.next(settings);

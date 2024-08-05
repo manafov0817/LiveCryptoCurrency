@@ -6,8 +6,11 @@ import { ChartModule } from 'primeng/chart';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CommonModule } from '@angular/common';
 import 'chartjs-adapter-date-fns';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, delay, map, Observable, of, switchMap } from 'rxjs';
 import { ChartSettings } from '../../models/ChartSettings.model';
+import { MessagesModule } from 'primeng/messages';
+import { Message } from 'primeng/api';
+import { CryptoHistoryOptions } from '../../Utils/CryptoHistoryOptions';
 
 @Component({
   selector: 'app-crypto-history',
@@ -18,133 +21,70 @@ import { ChartSettings } from '../../models/ChartSettings.model';
     ChartModule,
     InputNumberModule,
     CommonModule,
+    MessagesModule,
   ],
   templateUrl: './crypto-history.component.html',
   styleUrl: './crypto-history.component.scss',
 })
 export class CryptoHistoryComponent {
-  chartSettings: ChartSettings = new ChartSettings('usd', 'bitcoin', 7);
+  alertMessage: Message[] | null = null;
+  readonly options = new CryptoHistoryOptions();
 
-  chartData$: Observable<any> = this.cryptoHistorySvc.cryptoHistoryData$.pipe(
-    map((data) => ({
-      labels: data.prices.map((price: any) => new Date(price[0])),
-      datasets: [
-        {
-          label: `${this.chartSettings.selectedCoin} price in ${this.chartSettings.selectedCurrency}`,
-          data: data.prices.map((price: any) => price[1]),
-          fill: false,
-          borderColor: '#4bc0c0',
-        },
-      ],
-    })),
-    catchError(() => {
-      alert('Please, try again later');
-      return [];
-    })
+  private readonly chartSettings: ChartSettings = new ChartSettings(
+    'usd',
+    'bitcoin',
+    7
   );
 
-  constructor(private cryptoHistorySvc: CryptoHistoryService) {
-    cryptoHistorySvc.settingsChanged(this.chartSettings);
+  constructor(private cryptoHistoryService: CryptoHistoryService) {
+    cryptoHistoryService.settingsChanged(this.chartSettings);
   }
+
+  readonly chartData$: Observable<any> =
+    this.cryptoHistoryService.cryptoHistoryData$.pipe(
+      map((data) => ({
+        labels: data.prices.map((price: any) => new Date(price[0])),
+        datasets: [
+          {
+            label: `${this.chartSettings.selectedCoin} price in ${this.chartSettings.selectedCurrency}`,
+            data: data.prices.map((price: any) => price[1]),
+            fill: false,
+            borderColor: '#4bc0c0',
+          },
+        ],
+      })),
+      catchError((error, caught) => {
+        if (!this.alertMessage)
+          this.alertMessage = [
+            { severity: 'error', detail: `Please, try again later` },
+          ];
+
+        return of(error).pipe(
+          delay(30000),
+          switchMap(() => caught)
+        );
+      })
+    );
 
   setDateRange(days: number): void {
     this.chartSettings.days = days;
-    this.cryptoHistorySvc.settingsChanged(this.chartSettings);
-  }
-
-  dropdownChanged(event: DropdownChangeEvent, type: string): void {
-    switch (type) {
-      case 'curr':
-        this.chartSettings.selectedCurrency = event.value;
-        break;
-      case 'coin':
-        this.chartSettings.selectedCoin = event.value;
-        break;
-      default:
-        console.error('Wrong type!');
-    }
-    this.cryptoHistorySvc.settingsChanged(this.chartSettings);
+    this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
 
   focusOut(event: any): void {
     this.setDateRange(event.target?.value);
   }
 
+  coinsChanged($event: DropdownChangeEvent) {
+    this.chartSettings.selectedCoin = $event.value;
+    this.cryptoHistoryService.settingsChanged(this.chartSettings);
+  }
+  currencyChanged($event: DropdownChangeEvent) {
+    this.chartSettings.selectedCurrency = $event.value;
+    this.cryptoHistoryService.settingsChanged(this.chartSettings);
+  }
+
   getClass(day: number): any {
     return day == this.chartSettings.days ? 'active-button' : '';
   }
-
-  chartOptions: any = {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 4,
-
-    scales: {
-      x: {
-        type: 'time',
-        time: {
-          unit: 'day',
-        },
-        title: {
-          display: true,
-          text: 'Date',
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: `Price `,
-        },
-      },
-    },
-  };
-
-  coins = [
-    { label: 'Bitcoin', value: 'bitcoin' },
-    { label: 'Ethereum', value: 'ethereum' },
-    { label: 'Cardano', value: 'cardano' },
-    { label: 'Avalanche', value: 'avalanche-2' },
-    { label: 'Dogecoin', value: 'dogecoin' },
-    { label: 'BNB', value: 'binancecoin' },
-    { label: 'Solana', value: 'solana' },
-    { label: 'Polkadot', value: 'polkadot' },
-    { label: 'Ripple', value: 'ripple' },
-    { label: 'Litecoin', value: 'litecoin' },
-    { label: 'Chainlink', value: 'chainlink' },
-    { label: 'Stellar', value: 'stellar' },
-    { label: 'Polygon', value: 'matic-network' },
-    { label: 'VeChain', value: 'vechain' },
-    { label: 'Tron', value: 'tron' },
-    { label: 'Tezos', value: 'tezos' },
-    { label: 'Cosmos', value: 'cosmos' },
-    { label: 'Monero', value: 'monero' },
-    { label: 'EOS', value: 'eos' },
-    { label: 'IOTA', value: 'iota' },
-    { label: 'NEO', value: 'neo' },
-    { label: 'Dash', value: 'dash' },
-    { label: 'Zcash', value: 'zcash' },
-  ];
-
-  currencies = [
-    { label: 'USD', value: 'usd' },
-    { label: 'EUR', value: 'eur' },
-    { label: 'GBP', value: 'gbp' },
-    { label: 'JPY', value: 'jpy' },
-    { label: 'AUD', value: 'aud' },
-    { label: 'CAD', value: 'cad' },
-    { label: 'CHF', value: 'chf' },
-    { label: 'CNY', value: 'cny' },
-    { label: 'HKD', value: 'hkd' },
-    { label: 'NZD', value: 'nzd' },
-    { label: 'SGD', value: 'sgd' },
-    { label: 'SEK', value: 'sek' },
-    { label: 'NOK', value: 'nok' },
-    { label: 'MXN', value: 'mxn' },
-    { label: 'INR', value: 'inr' },
-    { label: 'RUB', value: 'rub' },
-    { label: 'ZAR', value: 'zar' },
-    { label: 'TRY', value: 'try' },
-    { label: 'BRL', value: 'brl' },
-    { label: 'TWD', value: 'twd' },
-  ];
 }
