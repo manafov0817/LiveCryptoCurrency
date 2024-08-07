@@ -6,12 +6,12 @@ import { CommonModule } from '@angular/common';
 import { DropdownChangeEvent, DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { TableEvent } from '../../models/TableEvent.model';
-import { CryptoTableOptions } from '../../Utils/CryptoTableOptions';
+import { CryptoTableOptions } from '../../utils/CryptoTableOptions';
 
 @Component({
   selector: 'app-crypto-table',
   standalone: true,
-  imports: [AsyncPipe, TableModule, CommonModule, DropdownModule, FormsModule],
+  imports: [AsyncPipe, TableModule, CommonModule, DropdownModule, FormsModule],  
   templateUrl: './crypto-table.component.html',
   styleUrl: './crypto-table.component.scss',
 })

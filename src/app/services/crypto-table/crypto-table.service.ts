@@ -3,7 +3,7 @@ import { distinctUntilChanged, filter, map, scan } from 'rxjs';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { IPrice } from '../../models/IPrice.model';
 import { TableEvent } from '../../models/TableEvent.model';
-import { CryptoTableOptions } from '../../Utils/CryptoTableOptions';
+import { CryptoTableOptions } from '../../utils/CryptoTableOptions';
 @Injectable({
   providedIn: 'root',
 })

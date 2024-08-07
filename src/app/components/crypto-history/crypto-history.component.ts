@@ -10,7 +10,7 @@ import { catchError, delay, map, Observable, of, switchMap } from 'rxjs';
 import { ChartSettings } from '../../models/ChartSettings.model';
 import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
-import { CryptoHistoryOptions } from '../../Utils/CryptoHistoryOptions';
+import { CryptoHistoryOptions } from '../../utils/CryptoHistoryOptions';
 
 @Component({
   selector: 'app-crypto-history',
@@ -56,7 +56,7 @@ export class CryptoHistoryComponent {
       catchError((error, caught) => {
         if (!this.alertMessage)
           this.alertMessage = [
-            { severity: 'error', detail: `Please, try again later` },
+            { severity: 'error', detail: `Please, try again after 30 seconds later` },
           ];
 
         return of(error).pipe(
