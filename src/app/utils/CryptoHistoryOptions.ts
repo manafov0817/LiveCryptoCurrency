@@ -2,7 +2,7 @@ export class CryptoHistoryOptions {
   chartOptions = {
     responsive: true,
     maintainAspectRatio: true,
-    aspectRatio: 4,
+    aspectRatio: 2,
 
     scales: {
       x: {
@@ -19,6 +19,10 @@ export class CryptoHistoryOptions {
         title: {
           display: true,
           text: `Price `,
+        },
+        ticks: {
+          callback: (value: number) =>
+            value >= 1000 ? value / 1000 + 'k' : value,
         },
       },
     },

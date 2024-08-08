@@ -5,7 +5,7 @@
     </p-dropdown>
     <p-dropdown [options]="options.coins" (onChange)="coinsChanged($event)" class="dropdown">
     </p-dropdown>
-    <p-inputNumber type="number" (focusout)="focusOut($event)" placeholder="Number of Days"></p-inputNumber>
+    <p-inputNumber type="number" (focusout)="focusOut($event)" placeholder="Number of Days" class="days-input"></p-inputNumber>
   </div>
   <div *ngIf="chartData$ | async as data">
     <p-chart type="line" [data]="data" [options]="options.chartOptions" class="chart"></p-chart>
