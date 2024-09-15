@@ -1,19 +1,35 @@
-<div class="container">
-  <div class="filter-box">
-    <p-messages *ngIf="alertMessage" [(value)]="alertMessage" [enableService]="false" [closable]="true" />
-    <p-dropdown [options]="options.currencies" (onChange)="currencyChanged($event)" class="dropdown">
-    </p-dropdown>
-    <p-dropdown [options]="options.coins" (onChange)="coinsChanged($event)" class="dropdown">
-    </p-dropdown>
-    <p-inputNumber type="number" (focusout)="focusOut($event)" placeholder="Number of Days" class="days-input"></p-inputNumber>
+<p-card class="block w-10 mt-3 m-auto p-2">
+  <p-messages *ngIf="alertMessage" [(value)]="alertMessage" [enableService]="false" [closable]="true" />
+
+  <div class="container">
+    <div>
+      <h2 class="m-0">Overview</h2>
+      <p class="my-2">Showcasing {{chartSettings.selectedCoin.toUpperCase() }} price in
+        {{chartSettings.selectedCurrency.toUpperCase()}} this month</p>
+    </div>
+
+    <div class="lg:flex md:block">
+      <div class="flex sm:w-12 lg:w-4 px-1 mb-1">
+        <p-dropdown [options]="options.currencies" (onChange)="currencyChanged($event)"
+          class="w-full shadow-1 inline-block dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="flex sm:w-12 lg:w-4 px-1 mb-1">
+        <p-dropdown [options]="options.coins" (onChange)="coinsChanged($event)"
+          class="w-full shadow-1 inline-block dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="flex sm:w-12 lg:w-4 px-1 mb-1">
+        <p-dropdown [options]="options.days" (onChange)="setDateRange($event)"
+          class="w-full shadow-1 inline-block dropdown">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div *ngIf="chartData$ | async as data">
+      <p-chart type="line" [data]="data" [options]="options.chartOptions" class="chart"></p-chart>
+    </div>
   </div>
-  <div *ngIf="chartData$ | async as data">
-    <p-chart type="line" [data]="data" [options]="options.chartOptions" class="chart"></p-chart>
-  </div>
-  <div class="date-range-buttons">
-    <button (click)="setDateRange(1)" [ngClass]="getClass(1)">1D</button>
-    <button (click)="setDateRange(7)" [ngClass]="getClass(7)">7D</button>
-    <button (click)="setDateRange(30)" [ngClass]="getClass(30)">1M</button>
-    <button (click)="setDateRange(365)" [ngClass]="getClass(365)">1Y</button>
-  </div>
-</div>
+</p-card>

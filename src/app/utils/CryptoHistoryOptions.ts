@@ -2,25 +2,17 @@ export class CryptoHistoryOptions {
   chartOptions = {
     responsive: true,
     maintainAspectRatio: true,
-    aspectRatio: 2,
+    aspectRatio: 2.5,
 
     scales: {
       x: {
         type: 'time',
         time: {
           unit: 'day',
-        },
-        title: {
-          display: true,
-          text: 'Date',
-        },
+        } 
       },
       y: {
-        title: {
-          display: true,
-          text: `Price `,
-        },
-        ticks: {
+         ticks: {
           callback: (value: number) =>
             value >= 1000 ? value / 1000 + 'k' : value,
         },
@@ -75,4 +67,12 @@ export class CryptoHistoryOptions {
     { label: 'BRL', value: 'brl' },
     { label: 'TWD', value: 'twd' },
   ];
+
+  days = [
+    { label: 'Today', value: 1 },
+    { label: 'This Week', value: 7 },
+    { label: 'This Month', value: 30 },
+    { label: 'This year', value: 365 }, 
+  ];
+  
 }

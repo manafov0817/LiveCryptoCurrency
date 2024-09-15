@@ -1,5 +1,4 @@
 export interface IPrice {
-    product_id?: string;
-    price?: number;     
-  }
-  
+  price: number; // Price
+  name: any; // Symbol (e.g., "BTCUSDT")
+}

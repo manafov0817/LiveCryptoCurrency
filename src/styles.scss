@@ -1,14 +1,29 @@
-.container {
-  max-width: 1170px;
-  margin: auto;
-}
-.currencySelector {
-  margin: 20px 0;
-}
-.dropdown{
-    margin-right:20px;
-}
+html {
+  font-size: 16px; /* Default size for larger screens */
 
+  body {
+    // height: auto;
+    margin: 0;
+    background-color: rgb(249, 250, 252);
+    .container {
+      max-width: 1170px;
+      margin: auto;
+    }
+    .currencySelector {
+      margin: 20px 0;
+    }
+    .dropdown {
+      margin-right: 20px;
+    }
+
+    .p-dropdown {
+      width: 100%;
+    }
+    .p-inputnumber {
+      width: 100%;
+    }
+  }
+}
 
 @media (max-width: 1024px) {
   .container {
@@ -17,15 +32,21 @@
 }
 
 @media (max-width: 768px) {
-  .container {
-    max-width: 700px;
+  html {
+    font-size: 14px;
+    .container {
+      max-width: 700px;
+    }
   }
 }
 @media (max-width: 435px) {
-  .container {
-    max-width: 340px;
-    .days-input{
-      margin-top: 10px;
+  html {
+    font-size: 12px;
+    .container {
+      max-width: 340px;
+      .days-input {
+        margin-top: 10px;
+      }
     }
   }
 }

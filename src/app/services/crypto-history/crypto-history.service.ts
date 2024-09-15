@@ -8,11 +8,14 @@ import { ChartSettings } from '../../models/ChartSettings.model';
 })
 export class CryptoHistoryService {
   private baseUrl = 'https://api.coingecko.com/api/v3/coins';
+
   constructor(private http: HttpClient) {}
+
   private cryptoHistorySubject = new BehaviorSubject<ChartSettings | undefined>(
     undefined
   );
-  private chartSettings:ChartSettings|undefined;
+  
+  private chartSettings: ChartSettings | undefined;
 
   cryptoHistoryData$ = this.cryptoHistorySubject.pipe(
     switchMap((settings) => {
@@ -23,7 +26,8 @@ export class CryptoHistoryService {
       labels: data.prices.map((price: any) => new Date(price[0])),
       datasets: [
         {
-          label: `${this.chartSettings?.selectedCoin} PRICE IN ${this.chartSettings?.selectedCurrency}`.toUpperCase(),
+          label:
+            `${this.chartSettings?.selectedCoin} PRICE IN ${this.chartSettings?.selectedCurrency}`.toUpperCase(),
           data: data.prices.map((price: any) => price[1]),
           fill: false,
           borderColor: '#4bc0c0',

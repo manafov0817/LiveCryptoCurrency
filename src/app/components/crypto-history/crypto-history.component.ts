@@ -11,6 +11,7 @@ import { ChartSettings } from '../../models/ChartSettings.model';
 import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
 import { CryptoHistoryOptions } from '../../utils/CryptoHistoryOptions';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-crypto-history',
@@ -22,6 +23,7 @@ import { CryptoHistoryOptions } from '../../utils/CryptoHistoryOptions';
     InputNumberModule,
     CommonModule,
     MessagesModule,
+    CardModule,
   ],
   templateUrl: './crypto-history.component.html',
   styleUrl: './crypto-history.component.scss',
@@ -29,8 +31,8 @@ import { CryptoHistoryOptions } from '../../utils/CryptoHistoryOptions';
 export class CryptoHistoryComponent {
   alertMessage: Message[] | null = null;
   readonly options = new CryptoHistoryOptions();
-
-  private readonly chartSettings: ChartSettings = new ChartSettings(
+  windowWidth: number = 1100;
+  readonly chartSettings: ChartSettings = new ChartSettings(
     'usd',
     'bitcoin',
     7
@@ -38,6 +40,7 @@ export class CryptoHistoryComponent {
 
   constructor(private cryptoHistoryService: CryptoHistoryService) {
     cryptoHistoryService.settingsChanged(this.chartSettings);
+    this.setWindowWitdh();
   }
 
   readonly chartData$: Observable<any> =
@@ -57,8 +60,8 @@ export class CryptoHistoryComponent {
       })
     );
 
-  setDateRange(days: number): void {
-    this.chartSettings.days = days;
+  setDateRange($event: DropdownChangeEvent): void {
+    this.chartSettings.days = $event.value;
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
 
@@ -71,11 +74,32 @@ export class CryptoHistoryComponent {
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
   currencyChanged($event: DropdownChangeEvent) {
+    console.log($event);
     this.chartSettings.selectedCurrency = $event.value;
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
 
   getClass(day: number): any {
     return day == this.chartSettings.days ? 'active-button' : '';
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.setWindowWitdh();
+  }
+
+  setWindowWitdh() {
+    this.windowWidth = window.innerWidth;
+    switch (true) {
+      case this.windowWidth < 600:
+        this.options.chartOptions.aspectRatio = 1;
+        break;
+      case this.windowWidth >= 600 && this.windowWidth < 900:
+        this.options.chartOptions.aspectRatio = 2;
+        break;
+      default:
+        this.options.chartOptions.aspectRatio = 2.5;
+        break;
+    }
   }
 }

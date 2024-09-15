@@ -1,33 +1,66 @@
-import { Injectable } from '@angular/core';
-import { distinctUntilChanged, filter, map, scan } from 'rxjs';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  map,
+  Observable,
+  scan,
+  Subscription,
+  tap,
+} from 'rxjs';
 import { WebSocketSubject } from 'rxjs/webSocket';
 import { IPrice } from '../../models/IPrice.model';
-import { TableEvent } from '../../models/TableEvent.model';
 import { CryptoTableOptions } from '../../utils/CryptoTableOptions';
+import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class CryptoTableService {
+export class CryptoTableService implements OnDestroy {
   private readonly _priceUpdatesSocketSubject = new WebSocketSubject<
     any | undefined
-  >('wss://ws-feed.pro.coinbase.com');
+  >('wss://stream.binance.com:9443/ws');
+
+  currencySubscription: Subscription | undefined;
+
+  currency = this.http.get<any>(
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json`
+  );
 
   private readonly priceUpdates$ =
     this._priceUpdatesSocketSubject?.asObservable();
-  currentProductIds: string[] = [];
-  readonly cryptoTableOptions = new CryptoTableOptions();
 
-  readonly priceTicker$ = this.priceUpdates$.pipe(
-    filter((message) => message.type === 'ticker'),
+  currentProductIds: string[] = [];
+  currentParameters: string[] = [];
+
+  currencyData: any;
+
+  constructor(private http: HttpClient) {
+    this.currencySubscription = this.currency.subscribe((data) => {
+      this.currencyData = data.usd;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.currencySubscription) {
+      this.currencySubscription.unsubscribe();
+      this.currencySubscription = undefined;
+    }
+  }
+
+  readonly cryptoTableKeys = Object.keys(
+    new CryptoTableOptions().productIdsDictionary
+  );
+
+  readonly cryptoTicker$ = this.priceUpdates$.pipe(
     map(
       (message) =>
         <IPrice>{
-          product_id: message.product_id,
-          price: Number(message.price),
+          name: message.s,
+          price: Number(message.p),
         }
     ),
     scan((acc, item) => {
-      const index = acc.findIndex((i) => i.product_id === item.product_id);
+      const index = acc.findIndex((i) => i.name === item.name);
       if (index === -1) {
         return [...acc, item];
       } else {
@@ -35,41 +68,26 @@ export class CryptoTableService {
         return [...acc];
       }
     }, <IPrice[]>[]),
-    map((prices) =>
-      prices.filter(
-        (price) =>
-          price.product_id != undefined &&
-          this.currentProductIds.indexOf(price.product_id) >= 0
-      )
-    ),
+    map((cryptos) => cryptos.filter((crypto) => crypto.name != undefined)),
     distinctUntilChanged()
   );
 
-  setProductIds(tableEvent: TableEvent): void {
-    this.currentProductIds = this.cryptoTableOptions.productIds
-      .slice(tableEvent.skip, tableEvent.skip + tableEvent.take)
-      .map((id) => {
-        return id.replace('CURRENCY', tableEvent.currency);
-      });
-    this.changeOptions();
-  }
+  setProductIds(): void {
+    this.currentProductIds = this.cryptoTableKeys.map((key) => {
+      return `${key.toUpperCase()}USDT`;
+    });
 
-  changeOptions() {
-    // First Unsubscribe for changing parameters
+    this.currentParameters = this.currentProductIds.map((key) => {
+      return key.toLowerCase() + '@aggTrade';
+    });
     this.applySetttings();
-    // Subscribe again to get data
-    this.applySetttings(this.currentProductIds);
   }
 
-  applySetttings(prodIds: string[] = []) {
+  applySetttings() {
     this._priceUpdatesSocketSubject.next({
-      type: prodIds.length > 0 ? 'subscribe' : 'unsubscribe',
-      channels: [
-        {
-          name: 'ticker',
-          product_ids: prodIds,
-        },
-      ],
+      method: 'SUBSCRIBE',
+      params: this.currentParameters,
+      id: 1,
     });
   }
 }
