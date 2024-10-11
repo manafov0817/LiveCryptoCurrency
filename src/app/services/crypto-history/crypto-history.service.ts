@@ -26,12 +26,28 @@ export class CryptoHistoryService {
       labels: data.prices.map((price: any) => new Date(price[0])),
       datasets: [
         {
-          label:
-            `${this.chartSettings?.selectedCoin} PRICE IN ${this.chartSettings?.selectedCurrency}`.toUpperCase(),
+          label:'',
           data: data.prices.map((price: any) => price[1]),
-          fill: false,
-          borderColor: '#4bc0c0',
           pointRadius: 0,
+          borderColor: 'rgb(44, 200, 105)',  // Set the line color
+
+          backgroundColor: (context: any) => {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+    
+            if (!chartArea) {
+              return null;
+            }
+    
+            // Create a gradient for the fill
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(44, 200, 105, 0.4)'); // Match the RGB value for consistency
+            gradient.addColorStop(1, 'rgba(44, 200, 105, 0)');
+    
+            return gradient;
+          },
+          fill: 'start',  // Enables the fading under the line
+          tension: 0.4,   // Makes the line smooth
         },
       ],
     }))

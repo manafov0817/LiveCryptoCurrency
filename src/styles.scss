@@ -1,5 +1,5 @@
 html {
-  font-size: 16px; /* Default size for larger screens */
+  font-size: 14px; /* Default size for larger screens */
 
   body {
     // height: auto;
@@ -22,19 +22,34 @@ html {
     .p-inputnumber {
       width: 100%;
     }
+    .p-card {
+      border-radius: 1rem;
+    }
+  }
+  .chart-container {
+    width: 100%; /* The chart will resize based on the container’s width */
+    max-width: 1000px; /* Optionally set a maximum width */
+    height: auto; /* The height will be automatically calculated based on the aspect ratio */
+  }
+
+  .chart {
+    display: block;
+    width: 100%;
+    height: auto; /* Let the chart take full width and calculate height */
   }
 }
 
 @media (max-width: 1024px) {
-  .container {
-    max-width: 900px;
+  html {
+    .container {
+      max-width: 900px;
+    }
   }
 }
 
 @media (max-width: 768px) {
   html {
-    font-size: 14px;
-    .container {
+     .container {
       max-width: 700px;
     }
   }

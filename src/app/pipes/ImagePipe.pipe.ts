@@ -1,15 +1,18 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { CryptoTableOptions } from '../utils/CryptoTableOptions';
+import { CoinsContainer } from '../utils/Common/CoinsContainer';
 
 @Pipe({
   name: 'image',
 })
 export class ImagePipe implements PipeTransform {
-  cryptoDict: any = new CryptoTableOptions().productIdsDictionary;
+  private readonly coinsContainer = new CoinsContainer();
 
   transform(key: string): string {
-    if (!key) return key;
-    key = key.replace('USDT', '').toLowerCase();
-    return this.cryptoDict[key][1];
+    if (!key || key == 'N/A') return key;
+
+    const shortName = key.replace('USDT', '').toLowerCase();
+    const imageUrl = this.coinsContainer.getCoinByShorName(shortName).imageLink;
+    return imageUrl;
   }
 }

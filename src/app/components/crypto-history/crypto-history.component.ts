@@ -1,8 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { CryptoHistoryService } from '../../services/crypto-history/crypto-history.service';
 import { DropdownChangeEvent, DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
-import { ChartModule } from 'primeng/chart';
+import { ChartModule, UIChart } from 'primeng/chart';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CommonModule } from '@angular/common';
 import 'chartjs-adapter-date-fns';
@@ -12,6 +12,7 @@ import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
 import { CryptoHistoryOptions } from '../../utils/CryptoHistoryOptions';
 import { CardModule } from 'primeng/card';
+import { CoinsContainer } from '../../utils/Common/CoinsContainer';
 
 @Component({
   selector: 'app-crypto-history',
@@ -31,15 +32,23 @@ import { CardModule } from 'primeng/card';
 export class CryptoHistoryComponent {
   alertMessage: Message[] | null = null;
   readonly options = new CryptoHistoryOptions();
+  readonly coinsWithValues = new CoinsContainer();
+  readonly coins: any;
   windowWidth: number = 1100;
+  @ViewChild('chartRef') chart: UIChart | undefined;
+
   readonly chartSettings: ChartSettings = new ChartSettings(
     'usd',
     'bitcoin',
-    7
+    1
   );
 
   constructor(private cryptoHistoryService: CryptoHistoryService) {
     cryptoHistoryService.settingsChanged(this.chartSettings);
+    this.coins = this.coinsWithValues.coins.map((coin) => ({
+      label: coin.name,
+      value: coin.label,
+    }));
     this.setWindowWitdh();
   }
 
@@ -54,7 +63,7 @@ export class CryptoHistoryComponent {
             },
           ];
         return of(error).pipe(
-          delay(30000),
+          delay(5000),
           switchMap(() => caught)
         );
       })
@@ -65,17 +74,17 @@ export class CryptoHistoryComponent {
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
 
-  focusOut(event: any): void {
-    this.setDateRange(event.target?.value);
-  }
-
   coinsChanged($event: DropdownChangeEvent) {
-    this.chartSettings.selectedCoin = $event.value;
+    const coin = this.coinsWithValues.getCoinByLabel($event.value);
+
+    this.chartSettings.selectedCoin = coin.label;
+    this.setTooltipCoin(coin);
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
+
   currencyChanged($event: DropdownChangeEvent) {
-    console.log($event);
-    this.chartSettings.selectedCurrency = $event.value;
+    this.chartSettings.selectedCurrency = $event.value.shortName;
+    this.setGraphCurrency($event.value.symbol);
     this.cryptoHistoryService.settingsChanged(this.chartSettings);
   }
 
@@ -85,11 +94,13 @@ export class CryptoHistoryComponent {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
+    if (this.chart) this.chart.reinit();
     this.setWindowWitdh();
   }
 
   setWindowWitdh() {
     this.windowWidth = window.innerWidth;
+
     switch (true) {
       case this.windowWidth < 600:
         this.options.chartOptions.aspectRatio = 1;
@@ -101,5 +112,33 @@ export class CryptoHistoryComponent {
         this.options.chartOptions.aspectRatio = 2.5;
         break;
     }
+  }
+
+  setTooltipCoin(coin: any) {
+    this.options.chartOptions.plugins.tooltip.callbacks.title =  ()=> {
+      return `${coin.name} ${coin.shortName.toUpperCase()}`;
+    };
+  }
+
+  setGraphCurrency(symbol: string) {
+    this.options.chartOptions.scales.y.ticks.callback = (value: number) => {
+      return `${symbol}${value.toLocaleString()}`;
+    };
+
+    this.options.chartOptions.plugins.tooltip.callbacks.label=  (tooltipItem: any)=> {
+      const price = tooltipItem.raw;
+
+      // Add the decimal point
+      const decimalPart = (price % 1).toFixed(2).split('.')[1]; // Get the decimal part
+      const integerPart = Math.floor(price).toString(); // Get the integer part
+      const formattedIntegerPart = integerPart.replace(
+        /\B(?=(\d{3})+(?!\d))/g,
+        '.'
+      );
+
+      const res = `${symbol}${formattedIntegerPart}.${decimalPart}`;
+
+      return res;
+    };
   }
 }

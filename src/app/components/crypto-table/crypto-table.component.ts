@@ -8,6 +8,7 @@ import { DropdownChangeEvent, DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { CryptoTableOptions } from '../../utils/CryptoTableOptions';
 import { PipesModule } from '../../pipes/PipesModule.module';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-crypto-table',
@@ -20,6 +21,7 @@ import { PipesModule } from '../../pipes/PipesModule.module';
     DropdownModule,
     FormsModule,
     CardModule,
+    ProgressSpinnerModule,
   ],
   templateUrl: './crypto-table.component.html',
   styleUrl: './crypto-table.component.scss',
@@ -27,7 +29,7 @@ import { PipesModule } from '../../pipes/PipesModule.module';
 export class CryptoTableComponent {
   selectedCurrency: string = 'USD';
   cryptoRate = 1;
-  cryptos$ = this.cryptoTableService.cryptoTicker$;
+  cryptos$ = this.cryptoTableService.cryptoTicker$.pipe();
   readonly cryptoTableOptions = new CryptoTableOptions();
 
   constructor(private cryptoTableService: CryptoTableService) {
@@ -35,8 +37,8 @@ export class CryptoTableComponent {
   }
 
   currencyChanged($event: DropdownChangeEvent) {
-    if ($event.value != null) this.selectedCurrency = $event.value;
+    if ($event.value != null) this.selectedCurrency = $event.value.shortName;
     this.cryptoRate =
-      this.cryptoTableService.currencyData[$event.value.toLowerCase()];
+      this.cryptoTableService.currencyData[$event.value.shortName.toLowerCase()];
   }
 }

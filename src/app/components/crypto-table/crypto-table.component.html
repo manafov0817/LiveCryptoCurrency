@@ -1,10 +1,14 @@
-<p-card class="block w-10 mt-3 m-auto p-2">
+<p-card class="block w-10 my-3  m-auto p-2">
     <div class="container">
         <div class="flex">
             <h2>Performance</h2>
-            <p-dropdown [options]="cryptoTableOptions.currencies" (onChange)="currencyChanged($event)"
+            <p-dropdown [options]="cryptoTableOptions.currencies" optionLabel="name" (onChange)="currencyChanged($event)"
                 class="dropdown ml-auto align-self-center">
             </p-dropdown>
+        </div>
+
+        <div class="flex justify-content-center align-items-center"  *ngIf="!(cryptos$ | async)"  style="height: 200px;">
+            <p-progressSpinner class="block" ariaLabel="loading" />
         </div>
         <div *ngIf="cryptos$ | async as prices">
             <p-table [value]="prices" styleClass="p-datatable-striped" [paginator]="true" [rows]="5"
@@ -13,19 +17,19 @@
                 [showCurrentPageReport]="true">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th [width]="200"> Currency </th>
+                        <th [width]="200"> Cryptourrency </th>
                         <th [width]="200"> Price </th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-crypto>
                     <tr>
-                        <td><img src="{{crypto.name | image}}" [width]="15" class="mr-3"> {{
+                        <td><img *ngIf="crypto.name!='N/A'" src="{{crypto.name | image}}" [width]="15" class="mr-3"> {{
                             crypto.name | name }}</td>
 
                         <td>{{ (crypto.price * cryptoRate ) | currency: selectedCurrency }}</td>
                     </tr>
                 </ng-template>
             </p-table>
-        </div>
+        </div> 
     </div>
 </p-card>
